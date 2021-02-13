@@ -4,7 +4,8 @@ import (
 	"log"
 
 	"github.com/Valeriy-Totubalin/myface-go"
-	"github.com/Valeriy-Totubalin/myface-go/pkg/handler"
+	// "github.com/Valeriy-Totubalin/myface-go/pkg/handler"
+	"github.com/Valeriy-Totubalin/myface-go/iternal/delivery/http/handler"
 )
 
 func main() {
