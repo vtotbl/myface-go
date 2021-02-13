@@ -1,12 +1,18 @@
 package main
 
+import (
+	"log"
+
+	"github.com/Valeriy-Totubalin/myface-go"
+	"github.com/Valeriy-Totubalin/myface-go/pkg/handler"
+)
+
 func main() {
-	handlers := handler.Handler{}
-	// r := gin.Default()
-	// r.GET("/ping", func(c *gin.Context) {
-	// 	c.JSON(200, gin.H{
-	// 		"message": "pong",
-	// 	})
-	// })
-	// r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	handlers := new(handler.Handler)
+
+	srv := new(myface.Server)
+
+	if err := srv.Run("8080", handlers.InitRoutes()); err != nil {
+		log.Fatalf("error occured while running http sever: %s", err.Error())
+	}
 }

@@ -5,7 +5,6 @@ import (
 )
 
 type Handler struct {
-	// sdads
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
@@ -13,12 +12,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	auth := router.Group("/auth")
 	{
-		auth.POST("/sign-up")
-		auth.POST("/sign-in")
+		auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-in", h.signIn)
 	}
 
 	// api := router.Group("/api")
 	// {
 
 	// }
+
+	return router
 }
