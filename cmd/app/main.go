@@ -4,12 +4,11 @@ import (
 	"log"
 
 	"github.com/Valeriy-Totubalin/myface-go"
-	// "github.com/Valeriy-Totubalin/myface-go/pkg/handler"
-	"github.com/Valeriy-Totubalin/myface-go/iternal/delivery/http/handler"
+	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http"
 )
 
 func main() {
-	handlers := new(handler.Handler)
+	handlers := new(http.Handler)
 
 	srv := new(myface.Server)
 
