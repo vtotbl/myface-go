@@ -2,6 +2,7 @@ package user_repository
 
 import (
 	"errors"
+	"log"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db"
@@ -25,4 +26,21 @@ func isExists(user domain.User) bool {
 	}
 
 	return false
+}
+
+func GetByLogin(login string) (domain.User, error) {
+	db := mysql_db.GetDB()
+	rows := db.Query("SELECT `login`, `password`, `sex` FROM `users` WHERE `login` = \"" + login + "\"")
+
+	user := domain.User{}
+	if rows.Next() {
+		err := rows.Scan(&user.Login, &user.Password, &user.Sex)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		return user, nil
+	}
+
+	return user, errors.New("User does not exist")
 }
