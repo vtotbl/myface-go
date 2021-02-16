@@ -1,0 +1,6 @@
+{
+    "Driver":   "mysql",
+    "User":     "root",
+    "Password": "",
+    "Database": "myface"
+}
