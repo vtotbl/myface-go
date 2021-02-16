@@ -20,7 +20,21 @@ func (h *Handler) signUp(c *gin.Context) {
 			"error": err.Error(),
 		})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "registered"})
+		signInInput := request.SignIn{
+			data.Login,
+			data.Password,
+		}
+		err := auth.SignIn(c, signInInput)
+		if nil != err {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"access_token":  c.MustGet("access_token"),
+				"refresh_token": c.MustGet("refresh_token"),
+			})
+		}
 	}
 }
 
@@ -30,12 +44,15 @@ func (h *Handler) signIn(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := auth.SignIn(data)
+	err := auth.SignIn(c, data)
 	if nil != err {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "logged in"})
+		c.JSON(http.StatusOK, gin.H{
+			"access_token":  c.MustGet("access_token"),
+			"refresh_token": c.MustGet("refresh_token"),
+		})
 	}
 }

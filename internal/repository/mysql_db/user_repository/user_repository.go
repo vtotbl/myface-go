@@ -13,7 +13,7 @@ func SignUp(user domain.User) error {
 		return errors.New("User already exists")
 	}
 	db := mysql_db.GetDB()
-	db.Query("INSERT INTO `users` VALUES" + "(\"" + user.Login + "\", \"" + user.Password + "\", \"" + user.Sex + "\")")
+	db.Query("INSERT INTO `users` (`login`, `password`, `sex`) VALUES" + "(\"" + user.Login + "\", \"" + user.Password + "\", \"" + user.Sex + "\")")
 
 	return nil
 }
@@ -30,11 +30,11 @@ func isExists(user domain.User) bool {
 
 func GetByLogin(login string) (domain.User, error) {
 	db := mysql_db.GetDB()
-	rows := db.Query("SELECT `login`, `password`, `sex` FROM `users` WHERE `login` = \"" + login + "\"")
+	rows := db.Query("SELECT `id`, `login`, `password`, `sex` FROM `users` WHERE `login` = \"" + login + "\"")
 
 	user := domain.User{}
 	if rows.Next() {
-		err := rows.Scan(&user.Login, &user.Password, &user.Sex)
+		err := rows.Scan(&user.Id, &user.Login, &user.Password, &user.Sex)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
