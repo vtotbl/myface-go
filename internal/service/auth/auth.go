@@ -1,11 +1,13 @@
 package auth
 
 import (
+	"os"
 	"time"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/user_repository"
+	"github.com/Valeriy-Totubalin/myface-go/pkg/config_manager"
 	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +52,12 @@ func SignIn(c *gin.Context, data request.SignIn) error {
 
 func createSession(userId int) (token_manager.Tokens, error) {
 	var res token_manager.Tokens
-	tokenManager, err := token_manager.NewManager("test")
+	secret, err := getSecretKey()
+	if nil != err {
+		return res, err
+	}
+
+	tokenManager, err := token_manager.NewManager(secret)
 	if nil != err {
 		return res, err
 	}
@@ -66,4 +73,18 @@ func createSession(userId int) (token_manager.Tokens, error) {
 	}
 
 	return res, nil
+}
+
+func getSecretKey() (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	config, err := config_manager.GetJWTConfig(pwd + "/internal/config/jwt.json")
+	if nil != err {
+		return "", err
+	}
+
+	return config.SecretKey, nil
 }
