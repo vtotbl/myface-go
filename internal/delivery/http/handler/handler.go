@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
+	TokenManager token_manager.TokenManager
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
@@ -19,10 +21,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		}
 	}
 
-	// api := router.Group("/api")
-	// {
-
-	// }
+	api := router.Group("/api")
+	{
+		v1 := api.Group("/v1", h.checkToken)
+		//v1.Use(h.checkToken) //middleware
+		{
+			v1.POST("/ping", h.pong)
+		}
+	}
 
 	return router
 }

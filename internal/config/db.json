@@ -2,5 +2,5 @@
     "Driver":   "mysql",
     "User":     "root",
     "Password": "",
-    "Database": "myface"
+    "Database": "myface-go"
 }

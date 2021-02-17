@@ -14,7 +14,8 @@ func (h *Handler) signUp(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := auth.SignUp(data)
+	c.Set("secret_key", h.TokenManager.GetSecretKey())
+	err := auth.SignUp(c, data)
 	if nil != err {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -44,6 +45,7 @@ func (h *Handler) signIn(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	c.Set("secret_key", h.TokenManager.GetSecretKey())
 	err := auth.SignIn(c, data)
 	if nil != err {
 		c.JSON(http.StatusBadRequest, gin.H{

@@ -13,6 +13,7 @@ type TokenManager interface {
 	NewJWT(userId string, ttl time.Duration) (string, error)
 	Parse(accessToken string) (string, error)
 	NewRefreshToken() (string, error)
+	GetSecretKey() string
 }
 
 type Manager struct {
@@ -36,9 +37,24 @@ func (m *Manager) NewJWT(userId string, ttl time.Duration) (string, error) {
 	return token.SignedString([]byte(m.key))
 }
 
-// func (m *Manager) Parse(accessToken string) (string, error) {
+func (m *Manager) Parse(accessToken string) (string, error) {
+	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (i interface{}, err error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected string method")
+		}
+		return []byte(m.GetSecretKey()), nil
+	})
+	if nil != err {
+		return "", err
+	}
 
-// }
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", errors.New("error get user claims from token")
+	}
+
+	return claims["sub"].(string), nil
+}
 
 func (m *Manager) NewRefreshToken() (string, error) {
 	b := make([]byte, 32)
@@ -52,4 +68,8 @@ func (m *Manager) NewRefreshToken() (string, error) {
 	}
 
 	return fmt.Sprintf("%x", b), nil
+}
+
+func (m *Manager) GetSecretKey() string {
+	return m.key
 }
