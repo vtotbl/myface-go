@@ -58,7 +58,7 @@ func createSession(userId int, secret string) (token_manager.Tokens, error) {
 		return res, err
 	}
 
-	res.AccessToken, err = tokenManager.NewJWT(strconv.Itoa(userId), 15*time.Minute)
+	res.AccessToken, err = tokenManager.NewJWT(strconv.Itoa(userId), 15*time.Minute) // 15 минут
 	if nil != err {
 		return res, err
 	}
@@ -68,36 +68,12 @@ func createSession(userId int, secret string) (token_manager.Tokens, error) {
 		return res, err
 	}
 
+	// fmt.Println(time.Now().Add(720 * time.Hour).Unix()) // 30 дней
+	// session := domain.Session{
+	// 	RefreshToken: res.RefreshToken,
+	// 	ExpiresAt:    time.Now().Add(720 * time.Hour).Unix(), // 30 дней
+	// }
+	// user_repository.Test()
+	// Запись рефреша в базу
 	return res, nil
 }
-
-// func CheckToken(accessToken string) (bool, error) {
-// 	secret := c.MustGet("secret_key")
-
-// 	tokenManager, err := token_manager.NewManager(secret)
-// 	if nil != err {
-// 		return false, err
-// 	}
-
-// 	test, err := tokenManager.Parse(accessToken)
-// 	if nil != err {
-// 		return false, err
-// 	}
-
-// 	fmt.Println(test)
-// 	return true, nil
-// }
-
-// func getSecretKey() (string, error) {
-// 	pwd, err := os.Getwd()
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	config, err := config_manager.GetJWTConfig(pwd + "/internal/config/jwt.json")
-// 	if nil != err {
-// 		return "", err
-// 	}
-
-// 	return config.SecretKey, nil
-// }

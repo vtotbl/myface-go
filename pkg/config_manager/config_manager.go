@@ -3,6 +3,8 @@ package config_manager
 import (
 	"encoding/json"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type JWTConfig struct {
@@ -10,29 +12,28 @@ type JWTConfig struct {
 }
 
 type DBConfig struct {
-	Driver   string
-	User     string
-	Password string
-	Database string
+	Development struct {
+		Open string `yaml:"open,omitempty"`
+	}
+}
+
+func (db *DBConfig) GetDSN() string {
+	return db.Development.Open
 }
 
 func GetDbConfig(path string) (*DBConfig, error) {
-	// наверно логику определения пути лучше сюда положить. Написать типа доки. Что конфиги
-	// должны лежать по определенному пути с определенным названием.
-	// Или сделать структуру в свойствах которой будет путь к папке
 	file, err := os.Open(path)
 	if nil != err {
 		return nil, err
 	}
 	defer file.Close()
-	decoder := json.NewDecoder(file)
+	decoder := yaml.NewDecoder(file)
 
 	configuration := DBConfig{}
 	err = decoder.Decode(&configuration)
 	if nil != err {
 		return nil, err
 	}
-
 	return &configuration, nil
 }
 

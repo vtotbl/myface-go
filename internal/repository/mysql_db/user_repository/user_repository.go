@@ -2,45 +2,61 @@ package user_repository
 
 import (
 	"errors"
-	"log"
+
+	"gorm.io/gorm"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db"
 )
 
+type User struct {
+	gorm.Model
+	Id       int
+	Login    string
+	Password string
+	Sex      string
+}
+
 func SignUp(user domain.User) error {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return err
+	}
+
 	if isExists(user) {
 		return errors.New("User already exists")
 	}
-	db := mysql_db.GetDB()
-	db.Query("INSERT INTO `users` (`login`, `password`, `sex`) VALUES" + "(\"" + user.Login + "\", \"" + user.Password + "\", \"" + user.Sex + "\")")
+	db.Create(&User{
+		Login:    user.Login,
+		Password: user.Password,
+		Sex:      user.Sex,
+	})
 
 	return nil
 }
 
 func isExists(user domain.User) bool {
-	db := mysql_db.GetDB()
-	rows := db.Query("SELECT `login` FROM `users` WHERE `login` = \"" + user.Login + "\"")
-	if rows.Next() {
+	domainUser, _ := GetByLogin(user.Login)
+	if nil != domainUser {
 		return true
 	}
-
 	return false
 }
 
-func GetByLogin(login string) (domain.User, error) {
-	db := mysql_db.GetDB()
-	rows := db.Query("SELECT `id`, `login`, `password`, `sex` FROM `users` WHERE `login` = \"" + login + "\"")
-
-	user := domain.User{}
-	if rows.Next() {
-		err := rows.Scan(&user.Id, &user.Login, &user.Password, &user.Sex)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		return user, nil
+func GetByLogin(login string) (*domain.User, error) {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return nil, err
 	}
-
-	return user, errors.New("User does not exist")
+	user := User{}
+	db.Where("login = ?", login).Find(&user)
+	if 0 == user.Id {
+		return &domain.User{}, errors.New("User does not exist")
+	}
+	return &domain.User{
+		Id:       user.Id,
+		Login:    user.Login,
+		Password: user.Password,
+		Sex:      user.Sex,
+	}, nil
 }

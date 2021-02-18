@@ -1,0 +1,4 @@
+development:
+    driver: mysql
+    open: root:@tcp(127.0.0.1:3306)/myface-go?charset=utf8mb4&parseTime=True&loc=Local
+Open: root:@tcp(127.0.0.1:3306)/myface-go?charset=utf8mb4&parseTime=True&loc=Local

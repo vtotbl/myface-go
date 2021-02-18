@@ -17,25 +17,26 @@ func (h *Handler) signUp(c *gin.Context) {
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
 	err := auth.SignUp(c, data)
 	if nil != err {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	signInInput := request.SignIn{
+		data.Login,
+		data.Password,
+	}
+	err = auth.SignIn(c, signInInput)
+	if nil != err {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 	} else {
-		signInInput := request.SignIn{
-			data.Login,
-			data.Password,
-		}
-		err := auth.SignIn(c, signInInput)
-		if nil != err {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"access_token":  c.MustGet("access_token"),
-				"refresh_token": c.MustGet("refresh_token"),
-			})
-		}
+		c.JSON(http.StatusOK, gin.H{
+			"access_token":  c.MustGet("access_token"),
+			"refresh_token": c.MustGet("refresh_token"),
+		})
 	}
 }
 
