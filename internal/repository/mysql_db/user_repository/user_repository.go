@@ -37,7 +37,7 @@ func SignUp(user domain.User) error {
 
 func isExists(user domain.User) bool {
 	domainUser, _ := GetByLogin(user.Login)
-	if nil != domainUser {
+	if 0 != domainUser.Id {
 		return true
 	}
 	return false
