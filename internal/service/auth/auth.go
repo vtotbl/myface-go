@@ -6,6 +6,7 @@ import (
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
+	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/session_repository"
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/user_repository"
 	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 	"github.com/gin-gonic/gin"
@@ -68,12 +69,15 @@ func createSession(userId int, secret string) (token_manager.Tokens, error) {
 		return res, err
 	}
 
-	// fmt.Println(time.Now().Add(720 * time.Hour).Unix()) // 30 дней
-	// session := domain.Session{
-	// 	RefreshToken: res.RefreshToken,
-	// 	ExpiresAt:    time.Now().Add(720 * time.Hour).Unix(), // 30 дней
-	// }
-	// user_repository.Test()
-	// Запись рефреша в базу
+	session := domain.Session{
+		RefreshToken: res.RefreshToken,
+		ExpiresAt:    time.Now().Add(720 * time.Hour).String(), // 30 дней
+		UserId:       userId,
+	}
+	err = session_repository.CreateSession(session)
+	if nil != err {
+		return res, err
+	}
+
 	return res, nil
 }

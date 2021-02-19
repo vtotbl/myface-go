@@ -3,6 +3,6 @@ package domain
 type Session struct {
 	Id           int
 	RefreshToken string
-	ExpiresAt    int64
+	ExpiresAt    string
 	UserId       int
 }
