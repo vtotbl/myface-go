@@ -41,14 +41,14 @@ func CreateSession(session domain.Session) error {
 	return nil
 }
 
-func GetByUserId(userId int) (*domain.Session, error) {
+func GetByRefresh(token string) (*domain.Session, error) {
 	db, err := mysql_db.GetDB()
 	if nil != err {
 		return nil, err
 	}
 
 	session := Session{}
-	db.Where("user_id = ?", userId).Find(&session)
+	db.Where("refresh_token = ?", token).Find(&session)
 	if 0 == session.Id {
 		return nil, errors.New("Session does not exist")
 	}

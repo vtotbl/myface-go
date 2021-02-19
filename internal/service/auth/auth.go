@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -41,6 +42,28 @@ func SignIn(c *gin.Context, data request.SignIn) error {
 
 	secret := c.MustGet("secret_key").(string)
 	tokens, err := createSession(user.Id, secret)
+	if nil != err {
+		return err
+	}
+
+	c.Set("access_token", tokens.AccessToken)
+	c.Set("refresh_token", tokens.RefreshToken)
+
+	return nil
+}
+
+func Refresh(c *gin.Context, data request.Refresh) error {
+	session, err := session_repository.GetByRefresh(data.Token)
+	if nil != err {
+		return err
+	}
+
+	if session.ExpiresAt < time.Now().String() {
+		return errors.New("Token expired")
+	}
+
+	secret := c.MustGet("secret_key").(string)
+	tokens, err := createSession(session.UserId, secret)
 	if nil != err {
 		return err
 	}

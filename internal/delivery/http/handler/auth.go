@@ -29,15 +29,16 @@ func (h *Handler) signUp(c *gin.Context) {
 	}
 	err = auth.SignIn(c, signInInput)
 	if nil != err {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"access_token":  c.MustGet("access_token"),
-			"refresh_token": c.MustGet("refresh_token"),
-		})
+		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  c.MustGet("access_token"),
+		"refresh_token": c.MustGet("refresh_token"),
+	})
 }
 
 func (h *Handler) signIn(c *gin.Context) {
@@ -49,13 +50,38 @@ func (h *Handler) signIn(c *gin.Context) {
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
 	err := auth.SignIn(c, data)
 	if nil != err {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"access_token":  c.MustGet("access_token"),
-			"refresh_token": c.MustGet("refresh_token"),
-		})
+		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  c.MustGet("access_token"),
+		"refresh_token": c.MustGet("refresh_token"),
+	})
+}
+
+func (h *Handler) refresh(c *gin.Context) {
+	var data request.Refresh
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Set("secret_key", h.TokenManager.GetSecretKey())
+	err := auth.Refresh(c, data)
+	if nil != err {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  c.MustGet("access_token"),
+		"refresh_token": c.MustGet("refresh_token"),
+	})
 }

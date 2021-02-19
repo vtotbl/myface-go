@@ -18,6 +18,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			v1.POST("/sign-up", h.signUp)
 			v1.POST("/sign-in", h.signIn)
+			v1.POST("/refresh", h.refresh)
 		}
 	}
 
