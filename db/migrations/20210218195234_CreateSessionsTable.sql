@@ -10,8 +10,7 @@ CREATE TABLE `sessions` (
 	`deleted_at`    DATETIME NULL DEFAULT NULL,
 
 	PRIMARY KEY (`id`) USING BTREE,
-    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
-    UNIQUE INDEX `user_id` (`user_id`)
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
 );
 
 -- +goose Down

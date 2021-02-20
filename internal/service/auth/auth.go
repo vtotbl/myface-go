@@ -74,6 +74,15 @@ func Refresh(c *gin.Context, data request.Refresh) error {
 	return nil
 }
 
+func LogOut(userId int) error {
+	err := session_repository.DeleteByUserId(userId)
+	if nil != err {
+		return err
+	}
+
+	return nil
+}
+
 func createSession(userId int, secret string) (token_manager.Tokens, error) {
 	var res token_manager.Tokens
 

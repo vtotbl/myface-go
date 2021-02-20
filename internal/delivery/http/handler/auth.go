@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/service/auth"
@@ -83,5 +84,27 @@ func (h *Handler) refresh(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  c.MustGet("access_token"),
 		"refresh_token": c.MustGet("refresh_token"),
+	})
+}
+
+func (h *Handler) logOut(c *gin.Context) {
+	h.checkToken(c)
+	userId := c.MustGet("user_id")
+	if nil == userId {
+		return
+	}
+	id, _ := strconv.Atoi(userId.(string))
+	err := auth.LogOut(id)
+
+	if nil != err {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
 	})
 }

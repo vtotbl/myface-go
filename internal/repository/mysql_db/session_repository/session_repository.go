@@ -24,19 +24,17 @@ func CreateSession(session domain.Session) error {
 
 	oldSession := Session{}
 	db.Where("user_id = ?", session.UserId).Find(&oldSession)
-	if 0 == oldSession.Id {
-		db.Create(&Session{
-			Id:           session.Id,
-			RefreshToken: session.RefreshToken,
-			ExpiresAt:    session.ExpiresAt,
-			UserId:       session.UserId,
-		})
 
-		return nil
+	if 0 != oldSession.Id {
+		db.Delete(&oldSession)
 	}
-	oldSession.RefreshToken = session.RefreshToken
-	oldSession.ExpiresAt = session.ExpiresAt
-	db.Save(oldSession)
+
+	db.Create(&Session{
+		Id:           session.Id,
+		RefreshToken: session.RefreshToken,
+		ExpiresAt:    session.ExpiresAt,
+		UserId:       session.UserId,
+	})
 
 	return nil
 }
@@ -59,4 +57,21 @@ func GetByRefresh(token string) (*domain.Session, error) {
 		ExpiresAt:    session.ExpiresAt,
 		UserId:       session.UserId,
 	}, nil
+}
+
+func DeleteByUserId(userId int) error {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return err
+	}
+
+	session := Session{}
+	db.Where("user_id = ?", userId).Find(&session)
+
+	if 0 == session.Id {
+		return errors.New("Session does not exist")
+	}
+	db.Delete(&session)
+
+	return nil
 }
