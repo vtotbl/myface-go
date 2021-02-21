@@ -68,6 +68,18 @@ func GetById(id int) (string, error) {
 	return base64, nil
 }
 
+func CanGet(userId, photoId int) (bool, error) {
+	photo, err := photo_repository.GetById(photoId)
+	if nil != err {
+		return false, err
+	}
+	if photo.UserId == userId {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func parsePhoto(data string) (image.Image, error) {
 	// если вначале строки есть еще информация, тогда раскоментировать
 	// i := strings.Index(data, ",")

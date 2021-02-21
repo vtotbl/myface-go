@@ -61,6 +61,31 @@ func (h *Handler) get(c *gin.Context) {
 		})
 		return
 	}
+
+	userId := c.MustGet("user_id")
+	if nil == userId {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid user id",
+		})
+		return
+	}
+	userIdInt, _ := strconv.Atoi(userId.(string))
+
+	canGet, err := photo.CanGet(userIdInt, id)
+	if nil != err {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if false == canGet {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Photo not found for this user",
+		})
+		return
+	}
+
 	base64, err := photo.GetById(id)
 	if nil != err {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -70,8 +95,8 @@ func (h *Handler) get(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"photo": base64,
+		"photo_id": photoInput.Id,
+		"photo":    base64,
 	})
 	return
-
 }
