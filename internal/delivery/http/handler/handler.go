@@ -29,6 +29,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		//v1.Use(h.checkToken) //middleware
 		{
 			v1.POST("/ping", h.pong)
+			v1.POST("/upload", h.upload)
 		}
 	}
 
