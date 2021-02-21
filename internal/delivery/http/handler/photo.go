@@ -44,3 +44,34 @@ func (h *Handler) upload(c *gin.Context) {
 		"message": "ok",
 	})
 }
+
+func (h *Handler) get(c *gin.Context) {
+	var photoInput request.Photo
+	if err := c.ShouldBindUri(&photoInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	id, err := strconv.Atoi(photoInput.Id)
+	if nil != err {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	base64, err := photo.GetById(id)
+	if nil != err {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"photo": base64,
+	})
+	return
+
+}

@@ -29,7 +29,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		//v1.Use(h.checkToken) //middleware
 		{
 			v1.POST("/ping", h.pong)
-			v1.POST("/upload", h.upload)
+			photo := v1.Group("/photo")
+			{
+				photo.POST("/", h.upload)
+				photo.GET("/:id", h.get)
+			}
 		}
 	}
 

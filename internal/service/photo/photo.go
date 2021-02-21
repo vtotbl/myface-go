@@ -2,7 +2,6 @@ package photo
 
 import (
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"image"
 	"math/rand"
@@ -56,12 +55,27 @@ func CheckCorrectData(data string) error {
 	return nil
 }
 
-func parsePhoto(data string) (image.Image, error) {
-	i := strings.Index(data, ",")
-	if i < 0 {
-		return nil, errors.New("Invalid format photo")
+func GetById(id int) (string, error) {
+	photo, err := photo_repository.GetById(id)
+	if nil != err {
+		return "", err
 	}
-	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(data[i+1:]))
+	base64, err := photo_os_repository.GetImageBase64(photo.Path)
+	if nil != err {
+		return "", nil
+	}
+
+	return base64, nil
+}
+
+func parsePhoto(data string) (image.Image, error) {
+	// если вначале строки есть еще информация, тогда раскоментировать
+	// i := strings.Index(data, ",")
+	// if i < 0 {
+	// 	return nil, errors.New("Invalid format photo")
+	// }
+	//data = data[i+1:]
+	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(data))
 
 	file, _, err := image.Decode(reader)
 	if err != nil {
