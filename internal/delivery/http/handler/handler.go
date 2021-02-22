@@ -31,8 +31,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			v1.POST("/ping", h.pong)
 			photo := v1.Group("/photo")
 			{
-				photo.POST("/", h.upload)
+				photo.POST("", h.upload)
 				photo.GET("/:id", h.get)
+			}
+			rating := v1.Group("/rating")
+			{
+				rating.POST("", h.setRating)
 			}
 		}
 	}
