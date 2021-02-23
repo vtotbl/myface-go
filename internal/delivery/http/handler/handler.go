@@ -8,6 +8,8 @@ import (
 	swaggerFiles "github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
+const UNKNOW_ERROR = "Unknown error"
+
 type Handler struct {
 	TokenManager token_manager.TokenManager
 }

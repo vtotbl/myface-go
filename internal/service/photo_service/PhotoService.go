@@ -1,4 +1,4 @@
-package photo
+package photo_service
 
 import (
 	"encoding/base64"
@@ -16,18 +16,34 @@ import (
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/os/photo_os_repository"
 )
 
-func Upload(userId int, data string) error {
-	file, err := parsePhoto(data)
+type PhotoService struct {
+	Repository *photo_repository.PhotoRepository
+}
+
+func NewPhotoService() (*PhotoService, error) {
+	repo, err := photo_repository.NewPhotoRepository()
+	if nil != err {
+		return nil, err
+	}
+	service := PhotoService{
+		Repository: repo,
+	}
+
+	return &service, nil
+}
+
+func (service *PhotoService) Upload(userId int, data string) error {
+	file, err := service.parsePhoto(data)
 	if err != nil {
 		return err
 	}
 
-	path, err := generatePath()
+	path, err := service.generatePath()
 	if err != nil {
 		return err
 	}
 
-	name, err := generateName()
+	name, err := service.generateName()
 	if err != nil {
 		return err
 	}
@@ -42,21 +58,21 @@ func Upload(userId int, data string) error {
 		UserId: userId,
 	}
 
-	photo_repository.CreatePhoto(photo)
+	service.Repository.CreatePhoto(photo)
 
 	return nil
 }
 
-func CheckCorrectData(data string) error {
-	_, err := parsePhoto(data)
+func (service *PhotoService) CheckCorrectData(data string) error {
+	_, err := service.parsePhoto(data)
 	if nil != err {
 		return err
 	}
 	return nil
 }
 
-func GetById(id int) (string, error) {
-	photo, err := photo_repository.GetById(id)
+func (service *PhotoService) GetById(id int) (string, error) {
+	photo, err := service.Repository.GetById(id)
 	if nil != err {
 		return "", err
 	}
@@ -68,8 +84,8 @@ func GetById(id int) (string, error) {
 	return base64, nil
 }
 
-func CanGet(userId, photoId int) (bool, error) {
-	photo, err := photo_repository.GetById(photoId)
+func (service *PhotoService) CanGet(userId, photoId int) (bool, error) {
+	photo, err := service.Repository.GetById(photoId)
 	if nil != err {
 		return false, err
 	}
@@ -80,7 +96,7 @@ func CanGet(userId, photoId int) (bool, error) {
 	return false, nil
 }
 
-func parsePhoto(data string) (image.Image, error) {
+func (service *PhotoService) parsePhoto(data string) (image.Image, error) {
 	// если вначале строки есть еще информация, тогда раскоментировать
 	// i := strings.Index(data, ",")
 	// if i < 0 {
@@ -97,7 +113,7 @@ func parsePhoto(data string) (image.Image, error) {
 	return file, nil
 }
 
-func generatePath() (string, error) {
+func (service *PhotoService) generatePath() (string, error) {
 	var pathArr []string
 	b := make([]byte, 1)
 	var s rand.Source
@@ -117,7 +133,7 @@ func generatePath() (string, error) {
 	return "docs/images/" + strings.Join(pathArr, "/") + "/", nil
 }
 
-func generateName() (string, error) {
+func (service *PhotoService) generateName() (string, error) {
 	b := make([]byte, 1)
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)

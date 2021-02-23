@@ -13,15 +13,44 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SignUp(c *gin.Context, data request.SignUp) error {
-	data.Password = generateHash(data.Password)
+type AuthService struct {
+	PasswordHasher    *PasswordHasher
+	UserRepository    *user_repository.UserRepository
+	SessionRepository *session_repository.SessionRepository
+}
+
+func NewAuthService() (*AuthService, error) {
+	passwordHasher, err := NewPasswordHasher()
+	if nil != err {
+		return nil, err
+	}
+	userRepo, err := user_repository.NewUserRepository()
+	if nil != err {
+		return nil, err
+	}
+	sessionRepo, err := session_repository.NewSessionRepository()
+	if nil != err {
+		return nil, err
+	}
+
+	service := AuthService{
+		PasswordHasher:    passwordHasher,
+		UserRepository:    userRepo,
+		SessionRepository: sessionRepo,
+	}
+
+	return &service, nil
+}
+
+func (service *AuthService) SignUp(c *gin.Context, data request.SignUp) error {
+	data.Password = service.PasswordHasher.GenerateHash(data.Password)
 	user := domain.User{
 		Login:    data.Login,
 		Password: data.Password,
 		Sex:      data.Sex,
 	}
 
-	err := user_repository.SignUp(user)
+	err := service.UserRepository.SignUp(user)
 	if nil != err {
 		return err
 	}
@@ -29,19 +58,19 @@ func SignUp(c *gin.Context, data request.SignUp) error {
 	return nil
 }
 
-func SignIn(c *gin.Context, data request.SignIn) error {
-	user, err := user_repository.GetByLogin(data.Login)
+func (service *AuthService) SignIn(c *gin.Context, data request.SignIn) error {
+	user, err := service.UserRepository.GetByLogin(data.Login)
 	if nil != err {
 		return err
 	}
 
-	err = checkPassword(data.Password, user.Password)
+	err = service.PasswordHasher.CheckPassword(data.Password, user.Password)
 	if nil != err {
 		return err
 	}
 
 	secret := c.MustGet("secret_key").(string)
-	tokens, err := createSession(user.Id, secret)
+	tokens, err := service.createSession(user.Id, secret)
 	if nil != err {
 		return err
 	}
@@ -52,8 +81,8 @@ func SignIn(c *gin.Context, data request.SignIn) error {
 	return nil
 }
 
-func Refresh(c *gin.Context, data request.Refresh) error {
-	session, err := session_repository.GetByRefresh(data.Token)
+func (service *AuthService) Refresh(c *gin.Context, data request.Refresh) error {
+	session, err := service.SessionRepository.GetByRefresh(data.Token)
 	if nil != err {
 		return err
 	}
@@ -63,7 +92,7 @@ func Refresh(c *gin.Context, data request.Refresh) error {
 	}
 
 	secret := c.MustGet("secret_key").(string)
-	tokens, err := createSession(session.UserId, secret)
+	tokens, err := service.createSession(session.UserId, secret)
 	if nil != err {
 		return err
 	}
@@ -74,8 +103,8 @@ func Refresh(c *gin.Context, data request.Refresh) error {
 	return nil
 }
 
-func LogOut(userId int) error {
-	err := session_repository.DeleteByUserId(userId)
+func (service *AuthService) LogOut(userId int) error {
+	err := service.SessionRepository.DeleteByUserId(userId)
 	if nil != err {
 		return err
 	}
@@ -83,7 +112,7 @@ func LogOut(userId int) error {
 	return nil
 }
 
-func createSession(userId int, secret string) (token_manager.Tokens, error) {
+func (service *AuthService) createSession(userId int, secret string) (token_manager.Tokens, error) {
 	var res token_manager.Tokens
 
 	tokenManager, err := token_manager.NewManager(secret)
@@ -106,7 +135,7 @@ func createSession(userId int, secret string) (token_manager.Tokens, error) {
 		ExpiresAt:    time.Now().Add(720 * time.Hour).String(), // 30 дней
 		UserId:       userId,
 	}
-	err = session_repository.CreateSession(session)
+	err = service.SessionRepository.CreateSession(session)
 	if nil != err {
 		return res, err
 	}

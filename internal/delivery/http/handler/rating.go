@@ -9,8 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const UNKNOW_ERROR = "Unknown error"
-
 func (h *Handler) setRating(c *gin.Context) {
 	var data request.SetRatingInput
 	if err := c.ShouldBindJSON(&data); err != nil {

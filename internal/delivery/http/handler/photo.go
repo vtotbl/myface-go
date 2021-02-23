@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
-	"github.com/Valeriy-Totubalin/myface-go/internal/service/photo"
+	"github.com/Valeriy-Totubalin/myface-go/internal/service/photo_service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,15 +25,21 @@ func (h *Handler) upload(c *gin.Context) {
 	}
 	id, _ := strconv.Atoi(userId.(string))
 
-	err := photo.CheckCorrectData(data.Photo)
+	service, err := photo_service.NewPhotoService()
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		return
+	}
 
+	err = service.CheckCorrectData(data.Photo)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	err = photo.Upload(id, data.Photo)
+	err = service.Upload(id, data.Photo)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -71,7 +78,14 @@ func (h *Handler) get(c *gin.Context) {
 	}
 	userIdInt, _ := strconv.Atoi(userId.(string))
 
-	canGet, err := photo.CanGet(userIdInt, id)
+	service, err := photo_service.NewPhotoService()
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		return
+	}
+
+	canGet, err := service.CanGet(userIdInt, id)
 	if nil != err {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -86,7 +100,7 @@ func (h *Handler) get(c *gin.Context) {
 		return
 	}
 
-	base64, err := photo.GetById(id)
+	base64, err := service.GetById(id)
 	if nil != err {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

@@ -7,7 +7,8 @@ import (
 )
 
 type RatingService struct {
-	Repository *rating_repository.RatingRepository
+	Repository      *rating_repository.RatingRepository
+	PhotoRepository *photo_repository.PhotoRepository
 }
 
 func NewRatingService() (*RatingService, error) {
@@ -15,8 +16,15 @@ func NewRatingService() (*RatingService, error) {
 	if nil != err {
 		return nil, err
 	}
+
+	photoRepo, err := photo_repository.NewPhotoRepository()
+	if nil != err {
+		return nil, err
+	}
+
 	service := RatingService{
-		Repository: repo,
+		Repository:      repo,
+		PhotoRepository: photoRepo,
 	}
 
 	return &service, nil
@@ -37,7 +45,7 @@ func (service *RatingService) SetRatingForPhoto(rating float64, photoId int, use
 }
 
 func (service *RatingService) CanSetRatingForPhoto(userId int, photoId int) (bool, error) {
-	photo, err := photo_repository.GetById(photoId)
+	photo, err := service.PhotoRepository.GetById(photoId)
 	if nil != err {
 		return false, err
 	}

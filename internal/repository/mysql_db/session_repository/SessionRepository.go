@@ -5,18 +5,16 @@ import (
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db"
-	"gorm.io/gorm"
 )
 
-type Session struct {
-	gorm.Model
-	Id           int
-	RefreshToken string
-	ExpiresAt    string
-	UserId       int
+type SessionRepository struct {
 }
 
-func CreateSession(session domain.Session) error {
+func NewSessionRepository() (*SessionRepository, error) {
+	return &SessionRepository{}, nil
+}
+
+func (repo *SessionRepository) CreateSession(session domain.Session) error {
 	db, err := mysql_db.GetDB()
 	if nil != err {
 		return err
@@ -39,7 +37,7 @@ func CreateSession(session domain.Session) error {
 	return nil
 }
 
-func GetByRefresh(token string) (*domain.Session, error) {
+func (repo *SessionRepository) GetByRefresh(token string) (*domain.Session, error) {
 	db, err := mysql_db.GetDB()
 	if nil != err {
 		return nil, err
@@ -59,7 +57,7 @@ func GetByRefresh(token string) (*domain.Session, error) {
 	}, nil
 }
 
-func DeleteByUserId(userId int) error {
+func (repo *SessionRepository) DeleteByUserId(userId int) error {
 	db, err := mysql_db.GetDB()
 	if nil != err {
 		return err

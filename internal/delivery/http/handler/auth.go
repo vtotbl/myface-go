@@ -25,7 +25,15 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
-	err := auth.SignUp(c, data)
+	service, err := auth.NewAuthService()
+	if nil != err {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": UNKNOW_ERROR,
+		})
+		return
+	}
+
+	err = service.SignUp(c, data)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -37,7 +45,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		data.Login,
 		data.Password,
 	}
-	err = auth.SignIn(c, signInInput)
+	err = service.SignIn(c, signInInput)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -58,7 +66,16 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
-	err := auth.SignIn(c, data)
+
+	service, err := auth.NewAuthService()
+	if nil != err {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": UNKNOW_ERROR,
+		})
+		return
+	}
+
+	err = service.SignIn(c, data)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -82,7 +99,16 @@ func (h *Handler) refresh(c *gin.Context) {
 	}
 
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
-	err := auth.Refresh(c, data)
+
+	service, err := auth.NewAuthService()
+	if nil != err {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": UNKNOW_ERROR,
+		})
+		return
+	}
+
+	err = service.Refresh(c, data)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -103,7 +129,16 @@ func (h *Handler) logOut(c *gin.Context) {
 		return
 	}
 	id, _ := strconv.Atoi(userId.(string))
-	err := auth.LogOut(id)
+
+	service, err := auth.NewAuthService()
+	if nil != err {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": UNKNOW_ERROR,
+		})
+		return
+	}
+
+	err = service.LogOut(id)
 
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{

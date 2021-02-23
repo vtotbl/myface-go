@@ -5,17 +5,16 @@ import (
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
 	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db"
-	"gorm.io/gorm"
 )
 
-type Photo struct {
-	gorm.Model
-	Id     int
-	Path   string
-	UserId int
+type PhotoRepository struct {
 }
 
-func CreatePhoto(photo domain.Photo) error {
+func NewPhotoRepository() (*PhotoRepository, error) {
+	return &PhotoRepository{}, nil
+}
+
+func (repo *PhotoRepository) CreatePhoto(photo domain.Photo) error {
 	db, err := mysql_db.GetDB()
 	if nil != err {
 		return err
@@ -29,7 +28,7 @@ func CreatePhoto(photo domain.Photo) error {
 	return nil
 }
 
-func GetById(id int) (*domain.Photo, error) {
+func (repo *PhotoRepository) GetById(id int) (*domain.Photo, error) {
 	db, err := mysql_db.GetDB()
 	if nil != err {
 		return nil, err
