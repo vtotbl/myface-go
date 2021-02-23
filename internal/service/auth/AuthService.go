@@ -112,6 +112,15 @@ func (service *AuthService) LogOut(userId int) error {
 	return nil
 }
 
+func (service *AuthService) IsExistsActiveSession(userId int) bool {
+	_, err := service.SessionRepository.GetByUserId(userId)
+	if nil != err {
+		return false
+	}
+
+	return true
+}
+
 func (service *AuthService) createSession(userId int, secret string) (token_manager.Tokens, error) {
 	var res token_manager.Tokens
 

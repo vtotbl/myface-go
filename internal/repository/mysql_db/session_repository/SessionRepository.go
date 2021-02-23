@@ -57,6 +57,26 @@ func (repo *SessionRepository) GetByRefresh(token string) (*domain.Session, erro
 	}, nil
 }
 
+func (repo *SessionRepository) GetByUserId(userId int) (*domain.Session, error) {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return nil, err
+	}
+
+	session := Session{}
+	db.Where("user_id = ?", userId).Find(&session)
+	if 0 == session.Id {
+		return nil, errors.New("Session does not exist")
+	}
+
+	return &domain.Session{
+		Id:           session.Id,
+		RefreshToken: session.RefreshToken,
+		ExpiresAt:    session.ExpiresAt,
+		UserId:       session.UserId,
+	}, nil
+}
+
 func (repo *SessionRepository) DeleteByUserId(userId int) error {
 	db, err := mysql_db.GetDB()
 	if nil != err {

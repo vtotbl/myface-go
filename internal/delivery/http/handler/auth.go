@@ -5,39 +5,40 @@ import (
 	"strconv"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
+	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/response"
 	"github.com/Valeriy-Totubalin/myface-go/internal/service/auth"
 	"github.com/gin-gonic/gin"
 )
 
-// ShowAccount godoc
-// @Summary SignUp
+// @Summary sign-up
 // @Tags auth
 // @Description create new account
-// @ID create-account
+// @ID sign-up
 // @Accept  json
 // @Produce  json
 // @Param input body request.SignUp true "account info"
-// @Success 200 {object} string
+// @Success 200 {object} response.Tokens
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /auth/v1/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
 	var data request.SignUp
 	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
 	service, err := auth.NewAuthService()
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": UNKNOW_ERROR,
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
+			Error: UnknowError,
 		})
 		return
 	}
 
 	err = service.SignUp(c, data)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
@@ -47,39 +48,46 @@ func (h *Handler) signUp(c *gin.Context) {
 	}
 	err = service.SignIn(c, signInInput)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"access_token":  c.MustGet("access_token"),
-		"refresh_token": c.MustGet("refresh_token"),
+	c.JSON(http.StatusOK, response.Tokens{
+		AccessToken:  c.MustGet("access_token").(string),
+		RefreshToken: c.MustGet("refresh_token").(string),
 	})
 }
 
+// @Summary sign-in
+// @Tags auth
+// @Description log in with an existing account
+// @ID sign-in
+// @Accept  json
+// @Produce  json
+// @Param input body request.SignIn true "login and password from the account"
+// @Success 200 {object} response.Tokens
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /auth/v1/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
 	var data request.SignIn
 	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
 
 	service, err := auth.NewAuthService()
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": UNKNOW_ERROR,
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
+			Error: UnknowError,
 		})
 		return
 	}
 
 	err = service.SignIn(c, data)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
@@ -89,12 +97,21 @@ func (h *Handler) signIn(c *gin.Context) {
 	})
 }
 
+// @Summary refresh
+// @Tags auth
+// @Description refresh tokens
+// @ID refresh
+// @Accept  json
+// @Produce  json
+// @Param input body request.Refresh true "refresh token"
+// @Success 200 {object} response.Tokens
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /auth/v1/refresh [post]
 func (h *Handler) refresh(c *gin.Context) {
 	var data request.Refresh
 	if err := c.ShouldBindJSON(&data); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
@@ -102,17 +119,15 @@ func (h *Handler) refresh(c *gin.Context) {
 
 	service, err := auth.NewAuthService()
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": UNKNOW_ERROR,
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
+			Error: UnknowError,
 		})
 		return
 	}
 
 	err = service.Refresh(c, data)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
@@ -122,6 +137,17 @@ func (h *Handler) refresh(c *gin.Context) {
 	})
 }
 
+// @Summary log-out
+// @Security ApiKeyAuth
+// @Tags auth
+// @Description log out
+// @ID log-out
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.Message
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /auth/v1/log-out [post]
 func (h *Handler) logOut(c *gin.Context) {
 	h.checkToken(c)
 	userId := c.MustGet("user_id")
@@ -132,8 +158,15 @@ func (h *Handler) logOut(c *gin.Context) {
 
 	service, err := auth.NewAuthService()
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": UNKNOW_ERROR,
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
+			Error: UnknowError,
+		})
+		return
+	}
+
+	if false == service.IsExistsActiveSession(id) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{
+			Error: "No active session",
 		})
 		return
 	}
@@ -141,14 +174,11 @@ func (h *Handler) logOut(c *gin.Context) {
 	err = service.LogOut(id)
 
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
+			Error: UnknowError,
 		})
-
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, response.Message{Message: "ok"})
 }

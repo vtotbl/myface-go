@@ -8,7 +8,7 @@ import (
 	swaggerFiles "github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
-const UNKNOW_ERROR = "Unknown error"
+const UnknowError = "Unknown error"
 
 type Handler struct {
 	TokenManager token_manager.TokenManager
@@ -26,7 +26,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			v1.POST("/sign-up", h.signUp)
 			v1.POST("/sign-in", h.signIn)
 			v1.POST("/refresh", h.refresh)
-			v1.POST("/log-out", h.logOut)
+			v1.POST("/log-out", h.checkToken, h.logOut)
 		}
 	}
 

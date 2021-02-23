@@ -18,7 +18,7 @@ func (h *Handler) setRating(c *gin.Context) {
 	service, err := rating_service.NewRatingService()
 	if nil != err {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UnknowError})
 		return
 	}
 
@@ -27,7 +27,7 @@ func (h *Handler) setRating(c *gin.Context) {
 	canSet, err := service.CanSetRatingForPhoto(userId, data.PhotoId)
 	if nil != err {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UnknowError})
 		return
 	}
 
@@ -39,7 +39,7 @@ func (h *Handler) setRating(c *gin.Context) {
 	err = service.SetRatingForPhoto(data.Rating, data.PhotoId, userId)
 	if nil != err {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UnknowError})
 		return
 	}
 

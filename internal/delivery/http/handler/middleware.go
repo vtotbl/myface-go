@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,9 +14,7 @@ const authorizationHeader = "Authorization"
 func (h *Handler) checkToken(c *gin.Context) {
 	id, err := h.parseAuthHeader(c)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, response.Error{Error: err.Error()})
 	}
 	c.Set("user_id", id)
 }

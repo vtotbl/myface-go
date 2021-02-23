@@ -6,16 +6,27 @@ import (
 	"strconv"
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
+	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/response"
 	"github.com/Valeriy-Totubalin/myface-go/internal/service/photo_service"
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary upload
+// @Security ApiKeyAuth
+// @Tags api
+// @Description upload photo to server
+// @ID upload
+// @Accept  json
+// @Produce  json
+// @Param input body request.Upload true "Base64 encoded photo"
+// @Success 200 {object} response.Message
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /api/v1/photo [post]
 func (h *Handler) upload(c *gin.Context) {
 	var data request.Upload
 	if err := c.ShouldBindJSON(&data); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
@@ -28,52 +39,53 @@ func (h *Handler) upload(c *gin.Context) {
 	service, err := photo_service.NewPhotoService()
 	if nil != err {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UnknowError})
 		return
 	}
 
 	err = service.CheckCorrectData(data.Photo)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 	err = service.Upload(id, data.Photo)
 	if nil != err {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	c.JSON(http.StatusOK, response.Message{Message: "ok"})
 }
 
+// @Summary get photo
+// @Security ApiKeyAuth
+// @Tags api
+// @Description get photo by id
+// @ID get-photo
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Photo ID"
+// @Success 200 {object} response.Message
+// @Failure 400 {object} response.Error
+// @Failure 401 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /api/v1/photo/{id} [get]
 func (h *Handler) get(c *gin.Context) {
 	var photoInput request.Photo
 	if err := c.ShouldBindUri(&photoInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
 
 	id, err := strconv.Atoi(photoInput.Id)
 	if nil != err {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
 	}
 
 	userId := c.MustGet("user_id")
 	if nil == userId {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid user id",
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "Invalid user id"})
 		return
 	}
 	userIdInt, _ := strconv.Atoi(userId.(string))
@@ -81,36 +93,29 @@ func (h *Handler) get(c *gin.Context) {
 	service, err := photo_service.NewPhotoService()
 	if nil != err {
 		log.Println(err.Error())
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UNKNOW_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
 	}
 
 	canGet, err := service.CanGet(userIdInt, id)
 	if nil != err {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
 	}
 
 	if false == canGet {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Photo not found for this user",
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "Photo not found for this user"})
 		return
 	}
 
 	base64, err := service.GetById(id)
 	if nil != err {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"photo_id": photoInput.Id,
-		"photo":    base64,
+	c.JSON(http.StatusOK, response.GetPhoto{
+		PhotoId: photoInput.Id,
+		Photo:   base64,
 	})
-	return
 }

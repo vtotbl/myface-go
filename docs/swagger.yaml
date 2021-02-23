@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  request.Refresh:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  request.SignIn:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    required:
+    - login
+    - password
+    type: object
   request.SignUp:
     properties:
       login:
@@ -13,15 +30,234 @@ definitions:
     - password
     - sex
     type: object
+  request.Upload:
+    properties:
+      photo:
+        type: string
+    required:
+    - photo
+    type: object
+  response.Error:
+    properties:
+      error:
+        type: string
+    required:
+    - error
+    type: object
+  response.Message:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  response.Tokens:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - access_token
+    - refresh_token
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: API server for myface application
   title: Todo App API
   version: "1.0"
-paths: {}
+paths:
+  /api/v1/photo:
+    post:
+      consumes:
+      - application/json
+      description: upload photo to server
+      operationId: upload
+      parameters:
+      - description: Base64 encoded photo
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Upload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: upload
+      tags:
+      - api
+  /api/v1/photo/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get photo by id
+      operationId: get-photo
+      parameters:
+      - description: Photo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: get photo
+      tags:
+      - api
+  /auth/v1/log-out:
+    post:
+      consumes:
+      - application/json
+      description: log out
+      operationId: log-out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: log-out
+      tags:
+      - auth
+  /auth/v1/refresh:
+    post:
+      consumes:
+      - application/json
+      description: refresh tokens
+      operationId: refresh
+      parameters:
+      - description: refresh token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Refresh'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: refresh
+      tags:
+      - auth
+  /auth/v1/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: log in with an existing account
+      operationId: sign-in
+      parameters:
+      - description: login and password from the account
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.SignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: sign-in
+      tags:
+      - auth
+  /auth/v1/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create new account
+      operationId: sign-up
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.SignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: sign-up
+      tags:
+      - auth
 securityDefinitions:
-  "":
+  ApiKeyAuth:
     in: header
     name: Authorization
     type: apiKey
