@@ -10,6 +10,17 @@ import (
 	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 )
 
+// @title Todo App API
+// @version 1.0
+// @description API server for myface application
+
+// @host localhost:8080
+// @BasePath /
+
+// @securitydefinitions.apikey
+// @in header
+// @name Authorization
+
 func main() {
 	// Получаем из конфига секретный ключ для jwt
 	pwd, err := os.Getwd()

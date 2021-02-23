@@ -1,8 +1,11 @@
 package handler
 
 import (
+	_ "github.com/Valeriy-Totubalin/myface-go/docs"
 	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 type Handler struct {
@@ -11,6 +14,8 @@ type Handler struct {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := router.Group("/auth")
 	{

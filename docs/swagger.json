@@ -1,0 +1,40 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API server for myface application",
+        "title": "Todo App API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {},
+    "definitions": {
+        "request.SignUp": {
+            "type": "object",
+            "required": [
+                "login",
+                "password",
+                "sex"
+            ],
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

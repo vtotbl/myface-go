@@ -1,0 +1,28 @@
+basePath: /
+definitions:
+  request.SignUp:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+      sex:
+        type: string
+    required:
+    - login
+    - password
+    - sex
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API server for myface application
+  title: Todo App API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  "":
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
