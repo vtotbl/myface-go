@@ -17,7 +17,8 @@ import (
 )
 
 type PhotoService struct {
-	Repository *photo_repository.PhotoRepository
+	Repository   *photo_repository.PhotoRepository
+	OsRepository *photo_os_repository.PhotoOsRepository
 }
 
 func NewPhotoService() (*PhotoService, error) {
@@ -48,7 +49,7 @@ func (service *PhotoService) Upload(userId int, data string) error {
 		return err
 	}
 
-	err = photo_os_repository.UploadJPG(file, path, name)
+	err = service.OsRepository.UploadJPG(file, path, name)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func (service *PhotoService) GetById(id int) (string, error) {
 	if nil != err {
 		return "", err
 	}
-	base64, err := photo_os_repository.GetImageBase64(photo.Path)
+	base64, err := service.OsRepository.GetImageBase64(photo.Path)
 	if nil != err {
 		return "", nil
 	}

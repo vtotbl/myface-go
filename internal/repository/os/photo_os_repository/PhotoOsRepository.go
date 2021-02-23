@@ -9,7 +9,14 @@ import (
 	"os"
 )
 
-func UploadJPG(file image.Image, path string, name string) error {
+type PhotoOsRepository struct {
+}
+
+func NewPhotoOsRepository() (*PhotoOsRepository, error) {
+	return &PhotoOsRepository{}, nil
+}
+
+func (repo *PhotoOsRepository) UploadJPG(file image.Image, path string, name string) error {
 	os.MkdirAll(path, os.ModePerm)
 	f, err := os.Create(path + name)
 	if err != nil {
@@ -28,7 +35,7 @@ func UploadJPG(file image.Image, path string, name string) error {
 	return nil
 }
 
-func GetImageBase64(path string) (string, error) {
+func (repo *PhotoOsRepository) GetImageBase64(path string) (string, error) {
 	pngData, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err
