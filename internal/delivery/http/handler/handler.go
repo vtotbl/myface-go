@@ -39,6 +39,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			photo := v1.Group("/photo")
 			{
 				photo.POST("", h.upload)
+				photo.GET("", h.getAll)
 				photo.GET("/:id", h.get)
 			}
 			rating := v1.Group("/rating")

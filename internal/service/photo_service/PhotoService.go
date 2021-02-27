@@ -97,6 +97,30 @@ func (service *PhotoService) CanGet(userId, photoId int) (bool, error) {
 	return false, nil
 }
 
+func (service *PhotoService) GetByUserId(userId int) ([]*PhotoBase64, error) {
+	photos, err := service.Repository.GetByUserId(userId)
+	if nil != err {
+		return nil, err
+	}
+	if nil == photos {
+		return nil, nil
+	}
+
+	var base64Photos []*PhotoBase64
+	for _, photo := range photos {
+		base64, err := service.OsRepository.GetImageBase64(photo.Path)
+		if nil != err {
+			return nil, err
+		}
+		base64Photos = append(base64Photos, &PhotoBase64{
+			Id:     photo.Id,
+			Base64: base64,
+		})
+	}
+
+	return base64Photos, nil
+}
+
 func (service *PhotoService) parsePhoto(data string) (image.Image, error) {
 	// если вначале строки есть еще информация, тогда раскоментировать
 	// i := strings.Index(data, ",")

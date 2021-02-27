@@ -65,7 +65,7 @@ func (h *Handler) upload(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "Photo ID"
-// @Success 200 {object} response.Message
+// @Success 200 {object} response.GetPhoto
 // @Failure 400 {object} response.Error
 // @Failure 401 {object} response.Error
 // @Failure 500 {object} response.Error
@@ -116,6 +116,49 @@ func (h *Handler) get(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.GetPhoto{
 		PhotoId: photoInput.Id,
-		Photo:   base64,
+		Base64:  base64,
 	})
+}
+
+// @Summary get photos
+// @Security ApiKeyAuth
+// @Tags api
+// @Description get all photos of the current user
+// @ID get-photos
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []response.GetPhoto
+// @Failure 401 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /api/v1/photo [get]
+func (h *Handler) getAll(c *gin.Context) {
+	userId, err := getCurrentUserId(c)
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
+		return
+	}
+
+	service, err := photo_service.NewPhotoService()
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
+		return
+	}
+
+	photos, err := service.GetByUserId(userId)
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
+		return
+	}
+
+	var base64Photos []*response.GetPhoto
+	for _, photo := range photos {
+		base64Photos = append(base64Photos, &response.GetPhoto{
+			PhotoId: strconv.Itoa(photo.Id),
+			Base64:  photo.Base64,
+		})
+	}
+	c.JSON(http.StatusOK, base64Photos)
 }

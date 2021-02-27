@@ -25,6 +25,48 @@ var doc = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/api/v1/photo": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get all photos of the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api"
+                ],
+                "summary": "get photos",
+                "operationId": "get-photos",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.GetPhoto"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -108,7 +150,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Message"
+                            "$ref": "#/definitions/response.GetPhoto"
                         }
                     },
                     "400": {
@@ -119,6 +161,58 @@ var doc = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rating": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "set rating for photo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api"
+                ],
+                "summary": "set-rating",
+                "operationId": "set-rating",
+                "parameters": [
+                    {
+                        "description": "Rating from 1 to 10 and photo ID",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SetRatingInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Message"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.Error"
                         }
@@ -327,6 +421,21 @@ var doc = `{
                 }
             }
         },
+        "request.SetRatingInput": {
+            "type": "object",
+            "required": [
+                "photo_id",
+                "rating"
+            ],
+            "properties": {
+                "photo_id": {
+                    "type": "integer"
+                },
+                "rating": {
+                    "type": "number"
+                }
+            }
+        },
         "request.SignIn": {
             "type": "object",
             "required": [
@@ -379,6 +488,21 @@ var doc = `{
             ],
             "properties": {
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GetPhoto": {
+            "type": "object",
+            "required": [
+                "base64",
+                "photo_id"
+            ],
+            "properties": {
+                "base64": {
+                    "type": "string"
+                },
+                "photo_id": {
                     "type": "string"
                 }
             }

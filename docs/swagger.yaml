@@ -7,6 +7,16 @@ definitions:
     required:
     - token
     type: object
+  request.SetRatingInput:
+    properties:
+      photo_id:
+        type: integer
+      rating:
+        type: number
+    required:
+    - photo_id
+    - rating
+    type: object
   request.SignIn:
     properties:
       login:
@@ -44,6 +54,16 @@ definitions:
     required:
     - error
     type: object
+  response.GetPhoto:
+    properties:
+      base64:
+        type: string
+      photo_id:
+        type: string
+    required:
+    - base64
+    - photo_id
+    type: object
   response.Message:
     properties:
       message:
@@ -69,6 +89,33 @@ info:
   version: "1.0"
 paths:
   /api/v1/photo:
+    get:
+      consumes:
+      - application/json
+      description: get all photos of the current user
+      operationId: get-photos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.GetPhoto'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: get photos
+      tags:
+      - api
     post:
       consumes:
       - application/json
@@ -119,7 +166,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Message'
+            $ref: '#/definitions/response.GetPhoto'
         "400":
           description: Bad Request
           schema:
@@ -135,6 +182,39 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: get photo
+      tags:
+      - api
+  /api/v1/rating:
+    post:
+      consumes:
+      - application/json
+      description: set rating for photo
+      operationId: set-rating
+      parameters:
+      - description: Rating from 1 to 10 and photo ID
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.SetRatingInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: set-rating
       tags:
       - api
   /auth/v1/log-out:

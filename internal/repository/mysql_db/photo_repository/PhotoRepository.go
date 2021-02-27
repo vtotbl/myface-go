@@ -49,3 +49,25 @@ func (repo *PhotoRepository) GetById(id int) (*domain.Photo, error) {
 		UserId: photo.UserId,
 	}, nil
 }
+
+func (repo *PhotoRepository) GetByUserId(userId int) ([]*domain.Photo, error) {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return nil, err
+	}
+
+	photos := []Photo{}
+
+	db.Where("user_id = ?", userId).Find(&photos)
+
+	var domainPhotos []*domain.Photo
+	for _, photo := range photos {
+		domainPhotos = append(domainPhotos, &domain.Photo{
+			Id:     photo.Id,
+			Path:   photo.Path,
+			UserId: photo.UserId,
+		})
+	}
+
+	return domainPhotos, nil
+}
