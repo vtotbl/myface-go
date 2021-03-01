@@ -86,12 +86,12 @@ func (h *Handler) get(c *gin.Context) {
 		return
 	}
 
-	userId := c.MustGet("user_id")
-	if nil == userId {
-		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "Invalid user id"})
+	userId, err := getCurrentUserId(c)
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
 	}
-	userIdInt, _ := strconv.Atoi(userId.(string))
 
 	service, err := photo_service.NewPhotoService()
 	if nil != err {
@@ -100,7 +100,7 @@ func (h *Handler) get(c *gin.Context) {
 		return
 	}
 
-	canGet, err := service.CanGet(userIdInt, id)
+	canGet, err := service.CanGet(userId, id)
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
 		return
