@@ -31,7 +31,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "get all photos of the current user",
+                "description": "Get photo by id or get all photos for current user. If the id of the photo is specified, then the model will be returned. If id is not specified then will return an array of models",
                 "consumes": [
                     "application/json"
                 ],
@@ -41,16 +41,27 @@ var doc = `{
                 "tags": [
                     "api"
                 ],
-                "summary": "get photos",
-                "operationId": "get-photos",
+                "summary": "get photo",
+                "operationId": "get-photo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Photo ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.GetPhoto"
-                            }
+                            "$ref": "#/definitions/response.GetPhoto"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "401": {
@@ -73,7 +84,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "upload photo to server",
+                "description": "Upload photo to server",
                 "consumes": [
                     "application/json"
                 ],
@@ -118,14 +129,14 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/photo/{id}": {
+        "/api/v1/photo/random": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "get photo by id",
+                "description": "Get a random photo where the rating isn't worth",
                 "consumes": [
                     "application/json"
                 ],
@@ -135,17 +146,8 @@ var doc = `{
                 "tags": [
                     "api"
                 ],
-                "summary": "get photo",
-                "operationId": "get-photo",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Photo ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "get random photo",
+                "operationId": "get-random-photo",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -153,10 +155,10 @@ var doc = `{
                             "$ref": "#/definitions/response.GetPhoto"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "204": {
+                        "description": "No Content",
                         "schema": {
-                            "$ref": "#/definitions/response.Error"
+                            "$ref": "#/definitions/response.Message"
                         }
                     },
                     "401": {
@@ -181,7 +183,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "set rating for photo",
+                "description": "Set rating for photo",
                 "consumes": [
                     "application/json"
                 ],
@@ -233,7 +235,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "log out",
+                "description": "Log out",
                 "consumes": [
                     "application/json"
                 ],
@@ -269,7 +271,7 @@ var doc = `{
         },
         "/auth/v1/refresh": {
             "post": {
-                "description": "refresh tokens",
+                "description": "Refresh tokens",
                 "consumes": [
                     "application/json"
                 ],
@@ -316,7 +318,7 @@ var doc = `{
         },
         "/auth/v1/sign-in": {
             "post": {
-                "description": "log in with an existing account",
+                "description": "Log in with an existing account",
                 "consumes": [
                     "application/json"
                 ],
@@ -363,7 +365,7 @@ var doc = `{
         },
         "/auth/v1/sign-up": {
             "post": {
-                "description": "create new account",
+                "description": "Create new account",
                 "consumes": [
                     "application/json"
                 ],
@@ -387,8 +389,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.Tokens"
                         }

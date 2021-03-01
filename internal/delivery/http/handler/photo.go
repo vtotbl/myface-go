@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,7 +15,7 @@ import (
 // @Summary upload
 // @Security ApiKeyAuth
 // @Tags api
-// @Description upload photo to server
+// @Description Upload photo to server
 // @ID upload
 // @Accept  json
 // @Produce  json
@@ -60,20 +61,22 @@ func (h *Handler) upload(c *gin.Context) {
 // @Summary get photo
 // @Security ApiKeyAuth
 // @Tags api
-// @Description get photo by id
+// @Description Get photo by id or get all photos for current user. If the id of the photo is specified, then the model will be returned. If id is not specified then will return an array of models
 // @ID get-photo
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Photo ID"
+// @Param id query string false "Photo ID"
 // @Success 200 {object} response.GetPhoto
 // @Failure 400 {object} response.Error
 // @Failure 401 {object} response.Error
 // @Failure 500 {object} response.Error
-// @Router /api/v1/photo/{id} [get]
+// @Router /api/v1/photo [get]
 func (h *Handler) get(c *gin.Context) {
 	var photoInput request.Photo
-	if err := c.ShouldBindUri(&photoInput); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: err.Error()})
+	photoInput.Id = c.Query("id")
+	fmt.Println(photoInput.Id)
+	if "" == photoInput.Id {
+		h.getAll(c)
 		return
 	}
 
@@ -120,17 +123,6 @@ func (h *Handler) get(c *gin.Context) {
 	})
 }
 
-// @Summary get photos
-// @Security ApiKeyAuth
-// @Tags api
-// @Description get all photos of the current user
-// @ID get-photos
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} []response.GetPhoto
-// @Failure 401 {object} response.Error
-// @Failure 500 {object} response.Error
-// @Router /api/v1/photo [get]
 func (h *Handler) getAll(c *gin.Context) {
 	userId, err := getCurrentUserId(c)
 	if nil != err {
@@ -161,4 +153,49 @@ func (h *Handler) getAll(c *gin.Context) {
 		})
 	}
 	c.JSON(http.StatusOK, base64Photos)
+}
+
+// @Summary get random photo
+// @Security ApiKeyAuth
+// @Tags api
+// @Description Get a random photo where the rating isn't worth
+// @ID get-random-photo
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.GetPhoto
+// @Success 204 {object} response.Message
+// @Failure 401 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /api/v1/photo/random [get]
+func (h *Handler) getRandom(c *gin.Context) {
+	userId, err := getCurrentUserId(c)
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
+		return
+	}
+
+	service, err := photo_service.NewPhotoService()
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
+		return
+	}
+
+	photo, err := service.GetRandom(userId)
+	if nil != err {
+		log.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
+		return
+	}
+
+	if nil == photo {
+		c.AbortWithStatusJSON(http.StatusNoContent, response.Message{Message: "No photos available for rating"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetPhoto{
+		PhotoId: strconv.Itoa(photo.Id),
+		Base64:  photo.Base64,
+	})
 }

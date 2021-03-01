@@ -13,7 +13,7 @@ import (
 // @Summary set-rating
 // @Security ApiKeyAuth
 // @Tags api
-// @Description set rating for photo
+// @Description Set rating for photo
 // @ID set-rating
 // @Accept  json
 // @Produce  json

@@ -121,6 +121,26 @@ func (service *PhotoService) GetByUserId(userId int) ([]*PhotoBase64, error) {
 	return base64Photos, nil
 }
 
+func (service *PhotoService) GetRandom(userId int) (*PhotoBase64, error) {
+	photo, err := service.Repository.GetRandom(userId)
+	if err != nil {
+		return nil, err
+	}
+	if 0 == photo.Id {
+		return nil, nil
+	}
+
+	base64, err := service.OsRepository.GetImageBase64(photo.Path)
+	if nil != err {
+		return nil, err
+	}
+
+	return &PhotoBase64{
+		Id:     photo.Id,
+		Base64: base64,
+	}, nil
+}
+
 func (service *PhotoService) parsePhoto(data string) (image.Image, error) {
 	// если вначале строки есть еще информация, тогда раскоментировать
 	// i := strings.Index(data, ",")

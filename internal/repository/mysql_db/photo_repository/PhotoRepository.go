@@ -71,3 +71,20 @@ func (repo *PhotoRepository) GetByUserId(userId int) ([]*domain.Photo, error) {
 
 	return domainPhotos, nil
 }
+
+func (repo *PhotoRepository) GetRandom(userId int) (*domain.Photo, error) {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return nil, err
+	}
+
+	photo := Photo{}
+
+	db.Order("RAND()").Limit(1).Model(&photo).Select("photos.id, photos.path, photos.user_id").Joins("LEFT JOIN ratings on ratings.photo_id = photos.id").Where("(ratings.user_id != ? OR ratings.user_id IS NULL) AND photos.user_id != ?", userId, userId).Scan(&photo)
+
+	return &domain.Photo{
+		Id:     photo.Id,
+		Path:   photo.Path,
+		UserId: photo.UserId,
+	}, nil
+}

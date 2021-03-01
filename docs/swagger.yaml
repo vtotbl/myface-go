@@ -92,17 +92,26 @@ paths:
     get:
       consumes:
       - application/json
-      description: get all photos of the current user
-      operationId: get-photos
+      description: Get photo by id or get all photos for current user. If the id of
+        the photo is specified, then the model will be returned. If id is not specified
+        then will return an array of models
+      operationId: get-photo
+      parameters:
+      - description: Photo ID
+        in: query
+        name: id
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/response.GetPhoto'
-            type: array
+            $ref: '#/definitions/response.GetPhoto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
         "401":
           description: Unauthorized
           schema:
@@ -113,13 +122,13 @@ paths:
             $ref: '#/definitions/response.Error'
       security:
       - ApiKeyAuth: []
-      summary: get photos
+      summary: get photo
       tags:
       - api
     post:
       consumes:
       - application/json
-      description: upload photo to server
+      description: Upload photo to server
       operationId: upload
       parameters:
       - description: Base64 encoded photo
@@ -148,18 +157,12 @@ paths:
       summary: upload
       tags:
       - api
-  /api/v1/photo/{id}:
+  /api/v1/photo/random:
     get:
       consumes:
       - application/json
-      description: get photo by id
-      operationId: get-photo
-      parameters:
-      - description: Photo ID
-        in: path
-        name: id
-        required: true
-        type: integer
+      description: Get a random photo where the rating isn't worth
+      operationId: get-random-photo
       produces:
       - application/json
       responses:
@@ -167,10 +170,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.GetPhoto'
-        "400":
-          description: Bad Request
+        "204":
+          description: No Content
           schema:
-            $ref: '#/definitions/response.Error'
+            $ref: '#/definitions/response.Message'
         "401":
           description: Unauthorized
           schema:
@@ -181,14 +184,14 @@ paths:
             $ref: '#/definitions/response.Error'
       security:
       - ApiKeyAuth: []
-      summary: get photo
+      summary: get random photo
       tags:
       - api
   /api/v1/rating:
     post:
       consumes:
       - application/json
-      description: set rating for photo
+      description: Set rating for photo
       operationId: set-rating
       parameters:
       - description: Rating from 1 to 10 and photo ID
@@ -221,7 +224,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: log out
+      description: Log out
       operationId: log-out
       produces:
       - application/json
@@ -247,7 +250,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: refresh tokens
+      description: Refresh tokens
       operationId: refresh
       parameters:
       - description: refresh token
@@ -278,7 +281,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: log in with an existing account
+      description: Log in with an existing account
       operationId: sign-in
       parameters:
       - description: login and password from the account
@@ -309,7 +312,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create new account
+      description: Create new account
       operationId: sign-up
       parameters:
       - description: account info
@@ -321,8 +324,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/response.Tokens'
         "400":

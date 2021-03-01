@@ -12,12 +12,12 @@ import (
 
 // @Summary sign-up
 // @Tags auth
-// @Description create new account
+// @Description Create new account
 // @ID sign-up
 // @Accept  json
 // @Produce  json
 // @Param input body request.SignUp true "account info"
-// @Success 200 {object} response.Tokens
+// @Success 201 {object} response.Tokens
 // @Failure 400 {object} response.Error
 // @Failure 500 {object} response.Error
 // @Router /auth/v1/sign-up [post]
@@ -52,7 +52,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.Tokens{
+	c.JSON(http.StatusCreated, response.Tokens{
 		AccessToken:  c.MustGet("access_token").(string),
 		RefreshToken: c.MustGet("refresh_token").(string),
 	})
@@ -60,7 +60,7 @@ func (h *Handler) signUp(c *gin.Context) {
 
 // @Summary sign-in
 // @Tags auth
-// @Description log in with an existing account
+// @Description Log in with an existing account
 // @ID sign-in
 // @Accept  json
 // @Produce  json
@@ -99,7 +99,7 @@ func (h *Handler) signIn(c *gin.Context) {
 
 // @Summary refresh
 // @Tags auth
-// @Description refresh tokens
+// @Description Refresh tokens
 // @ID refresh
 // @Accept  json
 // @Produce  json
@@ -140,7 +140,7 @@ func (h *Handler) refresh(c *gin.Context) {
 // @Summary log-out
 // @Security ApiKeyAuth
 // @Tags auth
-// @Description log out
+// @Description Log out
 // @ID log-out
 // @Accept  json
 // @Produce  json
