@@ -1,4 +1,4 @@
-package photo_service
+package domain
 
 type PhotoBase64 struct {
 	Id     int

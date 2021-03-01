@@ -2,6 +2,7 @@ package handler
 
 import (
 	_ "github.com/Valeriy-Totubalin/myface-go/docs"
+	"github.com/Valeriy-Totubalin/myface-go/internal/app/interfaces"
 	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -11,7 +12,8 @@ import (
 const UnknowError = "Unknown error"
 
 type Handler struct {
-	TokenManager token_manager.TokenManager
+	TokenManager   token_manager.TokenManager
+	ServiceFactory interfaces.ServiceFactory
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {

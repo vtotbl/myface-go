@@ -32,14 +32,6 @@ func (repo *UserRepository) SignUp(user domain.User) error {
 	return nil
 }
 
-func (repo *UserRepository) isExists(user domain.User) bool {
-	domainUser, _ := repo.GetByLogin(user.Login)
-	if 0 != domainUser.Id {
-		return true
-	}
-	return false
-}
-
 func (repo *UserRepository) GetByLogin(login string) (*domain.User, error) {
 	db, err := mysql_db.GetDB()
 	if nil != err {
@@ -56,4 +48,12 @@ func (repo *UserRepository) GetByLogin(login string) (*domain.User, error) {
 		Password: user.Password,
 		Sex:      user.Sex,
 	}, nil
+}
+
+func (repo *UserRepository) isExists(user domain.User) bool {
+	domainUser, _ := repo.GetByLogin(user.Login)
+	if 0 != domainUser.Id {
+		return true
+	}
+	return false
 }

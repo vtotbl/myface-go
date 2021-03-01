@@ -11,26 +11,24 @@ import (
 
 	_ "image/jpeg"
 
+	"github.com/Valeriy-Totubalin/myface-go/internal/app/interfaces"
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
-	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/photo_repository"
-	"github.com/Valeriy-Totubalin/myface-go/internal/repository/os/photo_os_repository"
 )
 
 type PhotoService struct {
-	Repository   *photo_repository.PhotoRepository
-	OsRepository *photo_os_repository.PhotoOsRepository
+	Repository   interfaces.PhotoDataRepository
+	OsRepository interfaces.PhotoFileRepository
 }
 
-func NewPhotoService() (*PhotoService, error) {
-	repo, err := photo_repository.NewPhotoRepository()
-	if nil != err {
-		return nil, err
-	}
-	service := PhotoService{
-		Repository: repo,
-	}
+func NewPhotoService(
+	repo interfaces.PhotoDataRepository,
+	repoFile interfaces.PhotoFileRepository,
+) interfaces.PhotoService {
 
-	return &service, nil
+	return &PhotoService{
+		Repository:   repo,
+		OsRepository: repoFile,
+	}
 }
 
 func (service *PhotoService) Upload(userId int, data string) error {
@@ -97,7 +95,7 @@ func (service *PhotoService) CanGet(userId, photoId int) (bool, error) {
 	return false, nil
 }
 
-func (service *PhotoService) GetByUserId(userId int) ([]*PhotoBase64, error) {
+func (service *PhotoService) GetByUserId(userId int) ([]*domain.PhotoBase64, error) {
 	photos, err := service.Repository.GetByUserId(userId)
 	if nil != err {
 		return nil, err
@@ -106,13 +104,13 @@ func (service *PhotoService) GetByUserId(userId int) ([]*PhotoBase64, error) {
 		return nil, nil
 	}
 
-	var base64Photos []*PhotoBase64
+	var base64Photos []*domain.PhotoBase64
 	for _, photo := range photos {
 		base64, err := service.OsRepository.GetImageBase64(photo.Path)
 		if nil != err {
 			return nil, err
 		}
-		base64Photos = append(base64Photos, &PhotoBase64{
+		base64Photos = append(base64Photos, &domain.PhotoBase64{
 			Id:     photo.Id,
 			Base64: base64,
 		})
@@ -121,7 +119,7 @@ func (service *PhotoService) GetByUserId(userId int) ([]*PhotoBase64, error) {
 	return base64Photos, nil
 }
 
-func (service *PhotoService) GetRandom(userId int) (*PhotoBase64, error) {
+func (service *PhotoService) GetRandom(userId int) (*domain.PhotoBase64, error) {
 	photo, err := service.Repository.GetRandom(userId)
 	if err != nil {
 		return nil, err
@@ -135,7 +133,7 @@ func (service *PhotoService) GetRandom(userId int) (*PhotoBase64, error) {
 		return nil, err
 	}
 
-	return &PhotoBase64{
+	return &domain.PhotoBase64{
 		Id:     photo.Id,
 		Base64: base64,
 	}, nil

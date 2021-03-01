@@ -5,33 +5,24 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Valeriy-Totubalin/myface-go/internal/app/interfaces"
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
-	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/session_repository"
-	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/user_repository"
 	"github.com/Valeriy-Totubalin/myface-go/pkg/token_manager"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthService struct {
-	PasswordHasher    *PasswordHasher
-	UserRepository    *user_repository.UserRepository
-	SessionRepository *session_repository.SessionRepository
+	PasswordHasher    interfaces.PasswordHasher
+	UserRepository    interfaces.UserRepository
+	SessionRepository interfaces.SessionRepository
 }
 
-func NewAuthService() (*AuthService, error) {
-	passwordHasher, err := NewPasswordHasher()
-	if nil != err {
-		return nil, err
-	}
-	userRepo, err := user_repository.NewUserRepository()
-	if nil != err {
-		return nil, err
-	}
-	sessionRepo, err := session_repository.NewSessionRepository()
-	if nil != err {
-		return nil, err
-	}
+func NewAuthService(
+	passwordHasher interfaces.PasswordHasher,
+	userRepo interfaces.UserRepository,
+	sessionRepo interfaces.SessionRepository,
+) interfaces.AuthService {
 
 	service := AuthService{
 		PasswordHasher:    passwordHasher,
@@ -39,7 +30,7 @@ func NewAuthService() (*AuthService, error) {
 		SessionRepository: sessionRepo,
 	}
 
-	return &service, nil
+	return &service
 }
 
 func (service *AuthService) SignUp(c *gin.Context, data request.SignUp) error {

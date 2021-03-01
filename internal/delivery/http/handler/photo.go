@@ -8,7 +8,6 @@ import (
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/response"
-	"github.com/Valeriy-Totubalin/myface-go/internal/service/photo_service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +36,7 @@ func (h *Handler) upload(c *gin.Context) {
 	}
 	id, _ := strconv.Atoi(userId.(string))
 
-	service, err := photo_service.NewPhotoService()
+	service, err := h.ServiceFactory.CreatePhotoService()
 	if nil != err {
 		log.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": UnknowError})
@@ -93,7 +92,7 @@ func (h *Handler) get(c *gin.Context) {
 		return
 	}
 
-	service, err := photo_service.NewPhotoService()
+	service, err := h.ServiceFactory.CreatePhotoService()
 	if nil != err {
 		log.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
@@ -131,7 +130,7 @@ func (h *Handler) getAll(c *gin.Context) {
 		return
 	}
 
-	service, err := photo_service.NewPhotoService()
+	service, err := h.ServiceFactory.CreatePhotoService()
 	if nil != err {
 		log.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})
@@ -175,7 +174,7 @@ func (h *Handler) getRandom(c *gin.Context) {
 		return
 	}
 
-	service, err := photo_service.NewPhotoService()
+	service, err := h.ServiceFactory.CreatePhotoService()
 	if nil != err {
 		log.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})

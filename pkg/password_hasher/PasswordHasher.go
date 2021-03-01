@@ -1,4 +1,4 @@
-package auth
+package password_hasher
 
 import (
 	"errors"

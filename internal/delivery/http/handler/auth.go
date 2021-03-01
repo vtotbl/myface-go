@@ -6,7 +6,6 @@ import (
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/response"
-	"github.com/Valeriy-Totubalin/myface-go/internal/service/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +27,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
-	service, err := auth.NewAuthService()
+	service, err := h.ServiceFactory.CreateAuthService()
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
 			Error: UnknowError,
@@ -77,7 +76,7 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
 
-	service, err := auth.NewAuthService()
+	service, err := h.ServiceFactory.CreateAuthService()
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
 			Error: UnknowError,
@@ -117,7 +116,7 @@ func (h *Handler) refresh(c *gin.Context) {
 
 	c.Set("secret_key", h.TokenManager.GetSecretKey())
 
-	service, err := auth.NewAuthService()
+	service, err := h.ServiceFactory.CreateAuthService()
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
 			Error: UnknowError,
@@ -156,7 +155,7 @@ func (h *Handler) logOut(c *gin.Context) {
 	}
 	id, _ := strconv.Atoi(userId.(string))
 
-	service, err := auth.NewAuthService()
+	service, err := h.ServiceFactory.CreateAuthService()
 	if nil != err {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{
 			Error: UnknowError,

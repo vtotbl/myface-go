@@ -6,7 +6,6 @@ import (
 
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/request"
 	"github.com/Valeriy-Totubalin/myface-go/internal/delivery/http/response"
-	"github.com/Valeriy-Totubalin/myface-go/internal/service/rating_service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +27,7 @@ func (h *Handler) setRating(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.Error{Error: err.Error()})
 		return
 	}
-	service, err := rating_service.NewRatingService()
+	service, err := h.ServiceFactory.CreateRatingService()
 	if nil != err {
 		log.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusInternalServerError, response.Error{Error: UnknowError})

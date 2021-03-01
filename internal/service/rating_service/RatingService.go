@@ -1,33 +1,24 @@
 package rating_service
 
 import (
+	"github.com/Valeriy-Totubalin/myface-go/internal/app/interfaces"
 	"github.com/Valeriy-Totubalin/myface-go/internal/domain"
-	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/photo_repository"
-	"github.com/Valeriy-Totubalin/myface-go/internal/repository/mysql_db/rating_repository"
 )
 
 type RatingService struct {
-	Repository      *rating_repository.RatingRepository
-	PhotoRepository *photo_repository.PhotoRepository
+	Repository      interfaces.RatingRepository
+	PhotoRepository interfaces.PhotoDataRepository
 }
 
-func NewRatingService() (*RatingService, error) {
-	repo, err := rating_repository.NewRatingRepository()
-	if nil != err {
-		return nil, err
-	}
+func NewRatingService(
+	repo interfaces.RatingRepository,
+	photoRepo interfaces.PhotoDataRepository,
+) interfaces.RatingService {
 
-	photoRepo, err := photo_repository.NewPhotoRepository()
-	if nil != err {
-		return nil, err
-	}
-
-	service := RatingService{
+	return &RatingService{
 		Repository:      repo,
 		PhotoRepository: photoRepo,
 	}
-
-	return &service, nil
 }
 
 func (service *RatingService) SetRatingForPhoto(rating float64, photoId int, userId int) error {
