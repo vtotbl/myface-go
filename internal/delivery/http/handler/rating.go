@@ -11,7 +11,7 @@ import (
 
 // @Summary set-rating
 // @Security ApiKeyAuth
-// @Tags api
+// @Tags rating
 // @Description Set rating for photo
 // @ID set-rating
 // @Accept  json

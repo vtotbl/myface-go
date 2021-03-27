@@ -10,6 +10,8 @@ import (
 )
 
 const UnknowError = "Unknown error"
+const PhotoNotFound = "Photo not found for this user"
+const PhotoDeleted = "Photo deleted successfully"
 
 type Handler struct {
 	TokenManager   token_manager.TokenManager
@@ -35,15 +37,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api := router.Group("/api")
 	{
 		v1 := api.Group("/v1", h.checkToken)
-		//v1.Use(h.checkToken) //middleware
 		{
 			v1.POST("/ping", h.pong)
 			photo := v1.Group("/photo")
 			{
 				photo.POST("", h.upload)
-				// photo.GET("", h.getAll)
+				photo.PUT("", h.change)
 				photo.GET("/random", h.getRandom)
 				photo.GET("", h.get)
+				photo.DELETE("", h.deletePhoto)
 			}
 			rating := v1.Group("/rating")
 			{

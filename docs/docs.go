@@ -39,7 +39,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "api"
+                    "photo"
                 ],
                 "summary": "get photo",
                 "operationId": "get-photo",
@@ -78,6 +78,62 @@ var doc = `{
                     }
                 }
             },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Change photo by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "photo"
+                ],
+                "summary": "change",
+                "operationId": "change",
+                "parameters": [
+                    {
+                        "description": "Base64 encoded photo and photo_id",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ChangePhoto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Photo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -92,7 +148,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "api"
+                    "photo"
                 ],
                 "summary": "upload",
                 "operationId": "upload",
@@ -111,11 +167,73 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/response.Photo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete photo by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "photo"
+                ],
+                "summary": "delete",
+                "operationId": "deletePhoto",
+                "parameters": [
+                    {
+                        "description": "Id photo to delete",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeletePhoto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "$ref": "#/definitions/response.Message"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.Error"
                         }
@@ -144,7 +262,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "api"
+                    "photo"
                 ],
                 "summary": "get random photo",
                 "operationId": "get-random-photo",
@@ -191,7 +309,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "api"
+                    "rating"
                 ],
                 "summary": "set-rating",
                 "operationId": "set-rating",
@@ -412,6 +530,32 @@ var doc = `{
         }
     },
     "definitions": {
+        "request.ChangePhoto": {
+            "type": "object",
+            "required": [
+                "base64",
+                "photo_id"
+            ],
+            "properties": {
+                "base64": {
+                    "type": "string"
+                },
+                "photo_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeletePhoto": {
+            "type": "object",
+            "required": [
+                "photo_id"
+            ],
+            "properties": {
+                "photo_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.Refresh": {
             "type": "object",
             "required": [
@@ -475,10 +619,10 @@ var doc = `{
         "request.Upload": {
             "type": "object",
             "required": [
-                "photo"
+                "base64"
             ],
             "properties": {
-                "photo": {
+                "base64": {
                     "type": "string"
                 }
             }
@@ -516,6 +660,17 @@ var doc = `{
             ],
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Photo": {
+            "type": "object",
+            "required": [
+                "photo_id"
+            ],
+            "properties": {
+                "photo_id": {
                     "type": "string"
                 }
             }

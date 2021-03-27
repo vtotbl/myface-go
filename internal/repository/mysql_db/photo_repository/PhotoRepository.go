@@ -14,18 +14,24 @@ func NewPhotoRepository() (*PhotoRepository, error) {
 	return &PhotoRepository{}, nil
 }
 
-func (repo *PhotoRepository) CreatePhoto(photo domain.Photo) error {
+func (repo *PhotoRepository) CreatePhoto(photo domain.Photo) (*domain.Photo, error) {
 	db, err := mysql_db.GetDB()
 	if nil != err {
-		return err
+		return nil, err
 	}
 
-	db.Create(&Photo{
+	newPhoto := Photo{
 		Path:   photo.Path,
 		UserId: photo.UserId,
-	})
+	}
 
-	return nil
+	db.Create(&newPhoto)
+
+	return &domain.Photo{
+		Id:     newPhoto.Id,
+		Path:   newPhoto.Path,
+		UserId: newPhoto.UserId,
+	}, nil
 }
 
 func (repo *PhotoRepository) GetById(id int) (*domain.Photo, error) {
@@ -87,4 +93,17 @@ func (repo *PhotoRepository) GetRandom(userId int) (*domain.Photo, error) {
 		Path:   photo.Path,
 		UserId: photo.UserId,
 	}, nil
+}
+
+func (repo *PhotoRepository) Delete(photoId int) error {
+	db, err := mysql_db.GetDB()
+	if nil != err {
+		return err
+	}
+	photo := Photo{
+		Id: photoId,
+	}
+	db.Delete(&photo)
+
+	return nil
 }

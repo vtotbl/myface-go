@@ -31,25 +31,25 @@ func NewPhotoService(
 	}
 }
 
-func (service *PhotoService) Upload(userId int, data string) error {
+func (service *PhotoService) Upload(userId int, data string) (*domain.Photo, error) {
 	file, err := service.parsePhoto(data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	path, err := service.generatePath()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	name, err := service.generateName()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = service.OsRepository.UploadJPG(file, path, name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	photo := domain.Photo{
@@ -57,9 +57,12 @@ func (service *PhotoService) Upload(userId int, data string) error {
 		UserId: userId,
 	}
 
-	service.Repository.CreatePhoto(photo)
+	createdPhoto, err := service.Repository.CreatePhoto(photo)
+	if nil != err {
+		return nil, err
+	}
 
-	return nil
+	return createdPhoto, nil
 }
 
 func (service *PhotoService) CheckCorrectData(data string) error {
@@ -83,7 +86,7 @@ func (service *PhotoService) GetById(id int) (string, error) {
 	return base64, nil
 }
 
-func (service *PhotoService) CanGet(userId, photoId int) (bool, error) {
+func (service *PhotoService) IsOwner(userId, photoId int) (bool, error) {
 	photo, err := service.Repository.GetById(photoId)
 	if nil != err {
 		return false, err
@@ -137,6 +140,15 @@ func (service *PhotoService) GetRandom(userId int) (*domain.PhotoBase64, error) 
 		Id:     photo.Id,
 		Base64: base64,
 	}, nil
+}
+
+func (service *PhotoService) Delete(photoId int) error {
+	err := service.Repository.Delete(photoId)
+	if nil != err {
+		return err
+	}
+
+	return nil
 }
 
 func (service *PhotoService) parsePhoto(data string) (image.Image, error) {

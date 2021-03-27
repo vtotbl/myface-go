@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  request.ChangePhoto:
+    properties:
+      base64:
+        type: string
+      photo_id:
+        type: string
+    required:
+    - base64
+    - photo_id
+    type: object
+  request.DeletePhoto:
+    properties:
+      photo_id:
+        type: integer
+    required:
+    - photo_id
+    type: object
   request.Refresh:
     properties:
       token:
@@ -42,10 +59,10 @@ definitions:
     type: object
   request.Upload:
     properties:
-      photo:
+      base64:
         type: string
     required:
-    - photo
+    - base64
     type: object
   response.Error:
     properties:
@@ -71,6 +88,13 @@ definitions:
     required:
     - message
     type: object
+  response.Photo:
+    properties:
+      photo_id:
+        type: string
+    required:
+    - photo_id
+    type: object
   response.Tokens:
     properties:
       access_token:
@@ -89,6 +113,42 @@ info:
   version: "1.0"
 paths:
   /api/v1/photo:
+    delete:
+      consumes:
+      - application/json
+      description: Delete photo by id
+      operationId: deletePhoto
+      parameters:
+      - description: Id photo to delete
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeletePhoto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Message'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: delete
+      tags:
+      - photo
     get:
       consumes:
       - application/json
@@ -124,7 +184,7 @@ paths:
       - ApiKeyAuth: []
       summary: get photo
       tags:
-      - api
+      - photo
     post:
       consumes:
       - application/json
@@ -143,9 +203,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.Message'
+            $ref: '#/definitions/response.Photo'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/response.Error'
         "500":
@@ -156,7 +220,43 @@ paths:
       - ApiKeyAuth: []
       summary: upload
       tags:
-      - api
+      - photo
+    put:
+      consumes:
+      - application/json
+      description: Change photo by id
+      operationId: change
+      parameters:
+      - description: Base64 encoded photo and photo_id
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePhoto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Photo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: change
+      tags:
+      - photo
   /api/v1/photo/random:
     get:
       consumes:
@@ -186,7 +286,7 @@ paths:
       - ApiKeyAuth: []
       summary: get random photo
       tags:
-      - api
+      - photo
   /api/v1/rating:
     post:
       consumes:
@@ -219,7 +319,7 @@ paths:
       - ApiKeyAuth: []
       summary: set-rating
       tags:
-      - api
+      - rating
   /auth/v1/log-out:
     post:
       consumes:
